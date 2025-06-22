@@ -1,12 +1,40 @@
 using System;
 using Domain;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.Migrations;
 
 public class DbInitializer
 {
-    public static async Task SeedData(AppDbContext context)
+    public static async Task SeedData(AppDbContext context, UserManager<User> userManager)
     {
+        if (!userManager.Users.Any())
+        {
+            var users = new List<User>
+            {
+                new() {
+                    DisplayName = "Bob Gogoi",
+                    UserName = "bob_gogoi@123.remail.com",
+                    Email ="bob_gogoi@123.remail.com",
+                },
+                new() {
+                    DisplayName = "Jain Das",
+                    UserName = "jain_das@123.remail.com",
+                    Email ="jain_das@123.remail.com",
+                },
+                new() {
+                    DisplayName = "Tom Jerry",
+                    UserName = "tom_jerry@123.remail.com",
+                    Email ="tom_jerry@123.remail.com",
+                },
+
+            };
+            foreach (var user in users)
+            {
+                await userManager.CreateAsync(user, "Pa$$w0rd");
+            }
+        }
         if (context.Activities.Any()) return;
         var activities = new List<Activity>
         {
@@ -17,7 +45,7 @@ public class DbInitializer
                 Category = "drinks",
                 City = "London",
                 Venue = "The Lamb and Flag, 33, Rose Street, Seven Dials, Covent Garden, London, Greater London, England, WC2E 9EB, United Kingdom",
-                Lattitude = 51.51171665,
+                Latitude = 51.51171665,
                 Longitude = -0.1256611057818921,
             },
             new() {
@@ -27,7 +55,7 @@ public class DbInitializer
                 Category = "culture",
                 City = "Paris",
                 Venue = "Louvre Museum, Rue Saint-Honoré, Quartier du Palais Royal, 1st Arrondissement, Paris, Ile-de-France, Metropolitan France, 75001, France",
-                Lattitude = 48.8611473,
+                Latitude = 48.8611473,
                 Longitude = 2.33802768704666
             },
             new() {
@@ -37,7 +65,7 @@ public class DbInitializer
                 Category = "culture",
                 City = "London",
                 Venue = "Natural History Museum",
-                Lattitude = 51.496510900000004,
+                Latitude = 51.496510900000004,
                 Longitude = -0.17600190725447445
             },
             new() {
@@ -47,7 +75,7 @@ public class DbInitializer
                 Category = "music",
                 City = "London",
                 Venue = "The O2",
-                Lattitude = 51.502936649999995,
+                Latitude = 51.502936649999995,
                 Longitude = 0.0032029278126681844
             },
             new()
@@ -58,7 +86,7 @@ public class DbInitializer
                 Category = "drinks",
                 City = "London",
                 Venue = "The Mayflower",
-                Lattitude = 51.501778,
+                Latitude = 51.501778,
                 Longitude = -0.053577
             },
             new()
@@ -69,7 +97,7 @@ public class DbInitializer
                 Category = "drinks",
                 City = "London",
                 Venue = "The Blackfriar",
-                Lattitude = 51.512146650000005,
+                Latitude = 51.512146650000005,
                 Longitude = -0.10364680647106028
             },
             new()
@@ -80,7 +108,7 @@ public class DbInitializer
                 Category = "culture",
                 City = "London",
                 Venue = "Sherlock Holmes Museum, 221b, Baker Street, Marylebone, London, Greater London, England, NW1 6XE, United Kingdom",
-                Lattitude = 51.5237629,
+                Latitude = 51.5237629,
                 Longitude = -0.1584743
             },
             new()
@@ -91,7 +119,7 @@ public class DbInitializer
                 Category = "music",
                 City = "London",
                 Venue = "Roundhouse, Chalk Farm Road, Maitland Park, Chalk Farm, London Borough of Camden, London, Greater London, England, NW1 8EH, United Kingdom",
-                Lattitude = 51.5432505,
+                Latitude = 51.5432505,
                 Longitude = -0.15197608174931165
             },
             new()
@@ -102,7 +130,7 @@ public class DbInitializer
                 Category = "travel",
                 City = "London",
                 Venue = "River Thames, England, United Kingdom",
-                Lattitude = 51.5575525,
+                Latitude = 51.5575525,
                 Longitude = -0.781404
             },
             new()
@@ -113,7 +141,7 @@ public class DbInitializer
                 Category = "film",
                 City = "London",
                 Venue = "River Thames, England, United Kingdom",
-                Lattitude = 51.5575525,
+                Latitude = 51.5575525,
                 Longitude = -0.781404
             }
         };
@@ -122,4 +150,25 @@ public class DbInitializer
 
         await context.SaveChangesAsync();
     }
+    public static async Task ClearDatabase(AppDbContext context)
+    {
+        // Disable foreign key constraints
+        await context.Database.ExecuteSqlRawAsync("PRAGMA foreign_keys = OFF;");
+
+        // Get all table names dynamically from EF Core metadata
+        var tableNames = context.Model
+            .GetEntityTypes()
+            .Select(t => t.GetTableName())
+            .Distinct()
+            .ToList();
+
+        foreach (var table in tableNames)
+        {
+            await context.Database.ExecuteSqlRawAsync($"DELETE FROM \"{table}\";");
+        }
+
+        // Re-enable foreign key constraints
+        await context.Database.ExecuteSqlRawAsync("PRAGMA foreign_keys = ON;");
+    }
+
 }
