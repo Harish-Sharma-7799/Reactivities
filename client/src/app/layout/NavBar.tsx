@@ -5,10 +5,13 @@ import { NavLink } from 'react-router'
 import MenuItemLink from '../shared/components/MenuItemLink'
 import { useStore } from '../../lib/hooks/useStore'
 import { Observer } from 'mobx-react-lite'
+import { useAccount } from '../../lib/hooks/useAccounts'
+import UserMenu from './UserMenu'
 
 
 export default function NavBar() {
     const { uiStore } = useStore();
+    const { currentUser } = useAccount();
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static" sx={{ backgroundImage: 'linear-gradient(135deg , #182a73 0%, #218aae 69%, #20a7ac 89%)', position: 'relative' }}>
@@ -24,9 +27,6 @@ export default function NavBar() {
                             <MenuItemLink to='/activities'>
                                 Activities
                             </MenuItemLink>
-                            <MenuItemLink to='/createActivity' >
-                                Create Activity
-                            </MenuItemLink>
                             <MenuItemLink to='/counter' >
                                 Counter
                             </MenuItemLink>
@@ -34,9 +34,18 @@ export default function NavBar() {
                                 Error
                             </MenuItemLink>
                         </Box>
-                        <MenuItem>
-                            User Menu
-                        </MenuItem>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }} >
+                            {currentUser ?
+                                (<UserMenu />) :
+                                (
+                                    <>
+                                        <MenuItemLink to='/login'>Login</MenuItemLink>
+                                        <MenuItemLink to='/register'>Register</MenuItemLink>
+                                    </>
+                                )
+                            }
+                        </Box>
+
                     </Toolbar>
                 </Container>
                 <Observer>
