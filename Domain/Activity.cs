@@ -15,4 +15,7 @@ public class Activity
     public bool IsCancelled { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
+
+    //navigation props
+    public ICollection<ActivityAttendee> Attendees { get; set; } = [];
 }
