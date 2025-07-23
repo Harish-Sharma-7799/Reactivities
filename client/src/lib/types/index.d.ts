@@ -9,6 +9,18 @@ type Activity = {
   isCancelled: boolean
   latitude: number
   longitude: number
+  attendees: Profile[]
+  isGoing: boolean
+  isHost: boolean
+  hostId: string
+  hostDisplayName: string
+}
+
+type Profile = {
+  id: string
+  displayName: string
+  bio?: string
+  imageUrl?: string
 }
 
 type User = {
@@ -48,3 +60,4 @@ type LocationIqAddress = {
   country: string
   country_code: string
 }
+
